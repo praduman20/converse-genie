@@ -5,23 +5,37 @@ import Characteristic from "@/components/Characteristic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BASE_URL } from "@/graphql/apolloClient";
-import { DELETE_CHATBOT } from "@/graphql/mutations/mutations";
+import {
+  ADD_CHARACTERISTIC,
+  DELETE_CHATBOT,
+  UPDATE_CHATBOT,
+} from "@/graphql/mutations/mutations";
 import { GET_CHATBOT_BY_ID } from "@/graphql/queries/queries";
 import { GetChatbotByIdResponse, GetChatbotByIdVariables } from "@/types/types";
 import { useMutation, useQuery } from "@apollo/client";
 import { Copy } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
+import React, { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 function EditChatbot({ params: { id } }: { params: { id: string } }) {
   const [url, setUrl] = useState("");
   const [chatbotName, setChatbotName] = useState<string>("");
   const [newCharacteristic, setNewCharacteristic] = useState<string>("");
+  const [date, setDate] = useState(new Date());
 
   const [deleteChatbot] = useMutation(DELETE_CHATBOT, {
     refetchQueries: ["GetChatbotById"], // Refetch the chatbot after refreshing
     awaitRefetchQueries: true,
+  });
+
+  const [addCharacteristic] = useMutation(ADD_CHARACTERISTIC, {
+    refetchQueries: ["GetChatbotById"],
+  });
+
+  const [updateChatbot] = useMutation(UPDATE_CHATBOT, {
+    refetchQueries: ["GetChatbotById"],
   });
 
   const { data, loading, error } = useQuery<
@@ -44,6 +58,82 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
 
     setUrl(url);
   }, [id]);
+
+  const handleAddCharacteristic = async (content: string) => {
+    const date = new Date();
+    setDate(date);
+    try {
+      const promise = addCharacteristic({
+        variables: {
+          chatbotId: Number(id),
+          content,
+          date,
+        },
+      });
+
+      toast.promise(promise, {
+        loading: "Adding...",
+        success: "Information added. Changes will reflect shortly.",
+        error: "Failed to add information",
+      });
+
+      setDate(new Date());
+    } catch (error) {
+      console.log("Failed to add characteristic", error);
+    }
+  };
+
+  const handleUpdateChatbot = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const promise = updateChatbot({
+        variables: {
+          id,
+          name: chatbotName,
+        },
+      });
+
+      toast.promise(promise, {
+        loading: "Updating...",
+        success: "Chatbot name successfully updated!",
+        error: "Failed to update chatbot",
+      });
+    } catch (error) {
+      console.log("Failed to update the chatbot :", error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const isConfirmed = confirm(
+      "Are you sure you want to deletet this chatbot?"
+    );
+    if (!isConfirmed) return;
+
+    try {
+      const promise = deleteChatbot({ variables: { id } });
+      toast.promise(promise, {
+        loading: "Deleting...",
+        success: "Chatbot successfully deleted!",
+        error: "Failed to delete chatbot",
+      });
+    } catch (error) {
+      console.log("Error deleting chatbot", error);
+      toast.error("Failed to delete chatbot");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="mx-auto animate-spin p-10">
+        <Avatar seed="PAPAFAM Support Agent" />
+      </div>
+    );
+  }
+
+  if (error) return <p>Error:{error.message}</p>;
+
+  if (!data?.chatbots) return redirect("/view-chatbots");
 
   return (
     <div className="px-0 md:p-10">
@@ -78,7 +168,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         <Button
           variant="destructive"
           className="absolute top-2 right-2 h-8 w-2"
-          // onClick={handleDelete}
+          onClick={() => handleDelete(id)}
         >
           X
         </Button>
@@ -86,7 +176,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         <div className="flex space-x-4">
           <Avatar seed={chatbotName} />
           <form
-            // onSubmit={handleUpdateChatbot}
+            onSubmit={handleUpdateChatbot}
             className="flex flex-1 space-x-2 items-center"
           >
             <Input
@@ -103,15 +193,22 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         </div>
 
         <h2 className="text-xl font-bold mt-10">
-          Here's what your AI knows...
+          Here's what your ConverseGenie AI knows...
         </h2>
         <p>
           Your chatbot is equipped with the following information to assist you
           in your conversations with your customers and users
         </p>
 
-        <div>
-          <form>
+        <div className="bg-gray-200 p-5 md:p-5 rounded-md mt-5">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddCharacteristic(newCharacteristic);
+              setNewCharacteristic("");
+            }}
+            className="flex space-x-2 mb-5"
+          >
             <Input
               type="text"
               placeholder="Example: If customer asks for prices , provide pricing page: www.example.com/pricing"
@@ -124,7 +221,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
           </form>
 
           <ul className="flex flex-wrap-reverse gap-5">
-            {data?.chatbots.chatbot_characteristics.map((characteristic) => (
+            {data?.chatbots?.chatbot_characteristics?.map((characteristic) => (
               <Characteristic
                 characteristic={characteristic}
                 key={characteristic.id}

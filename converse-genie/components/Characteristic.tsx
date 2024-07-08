@@ -17,10 +17,11 @@ function Characteristic({
   });
 
   const handleRemoveCharacteristic = async (characteristicId: number) => {
+    console.log(characteristicId);
     try {
       await removeCharacteristic({
         variables: {
-          id: characteristicId,
+          characteristicId,
         },
       });
     } catch (error) {
