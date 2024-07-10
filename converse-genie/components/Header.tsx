@@ -8,8 +8,10 @@ function Header() {
       <Link href="/" className="flex items-center text-4xl font-thin">
         <Avatar seed="PAPAFAM Support Agent" />
         <div className="space-y-1">
-          <h1>ConverseGenie</h1>
-          <h2 className="text-sm">Your Customisable AI chat agent</h2>
+          <h1 className="text-lg md:text-4xl">ConverseGenie</h1>
+          <h2 className="text-xs md:text-sm ">
+            Your Customisable AI chat agent
+          </h2>
         </div>
       </Link>
 
