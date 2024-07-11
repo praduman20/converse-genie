@@ -29,12 +29,16 @@ async function ReviewSession({ params: { id } }: { params: { id: string } }) {
       id: parseInt(id),
     },
   });
+
+  const options = {
+    timeZone: "Asia/Kolkata",
+  };
+
+  const date = new Date(created_at).toLocaleString("en-IN", options);
   return (
     <div className="flex-1 p-10 pb-24">
       <h1 className="text-xl lg:text-3xl font-semibold">Session Review</h1>
-      <p className="font-light text-xs text-gray-400 mt-2">
-        Started at {new Date(created_at).toLocaleString()}
-      </p>
+      <p className="font-light text-xs text-gray-400 mt-2">Started at {date}</p>
 
       <h2 className="font-light mt-2">
         Between {name} &{" "}
