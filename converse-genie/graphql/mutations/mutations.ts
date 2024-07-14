@@ -73,8 +73,33 @@ export const INSERT_MESSAGE = gql`
       sender: $sender
     ) {
       id
-      content
+    }
+  }
+`;
+
+export const INSERT_GUEST = gql`
+  mutation insertGuest($name: String!, $email: String!, $date: DateTime!) {
+    insertGuests(name: $name, email: $email, created_at: $date) {
+      id
+    }
+  }
+`;
+
+export const INSERT_CHAT_SESSION = gql`
+  mutation insertChatSession(
+    $chatbot_id: Int!
+    $guest_id: Int!
+    $date: DateTime!
+  ) {
+    insertChat_sessions(
+      chatbot_id: $chatbot_id
+      guest_id: $guest_id
+      created_at: $date
+    ) {
+      id
+      guest_id
       created_at
+      chatbot_id
     }
   }
 `;

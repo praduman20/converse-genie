@@ -46,7 +46,7 @@ type Messages {
   chat_sessions: Chat_sessions
     @materializer(query: "chat_sessionsUsingMessages_chat_session_id_fkey")
   content: String!
-  created_at: DateTime!
+  created_at: DateTime
   id: Int!
   sender: String!
 }
@@ -446,7 +446,7 @@ type Mutation {
     chat_session_id: Int
     content: String!
     sender: String!
-    created_at: DateTime!
+    created_at: DateTime
   ): Messages
     @dbquery(
       type: "postgresql"
