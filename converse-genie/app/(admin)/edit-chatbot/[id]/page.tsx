@@ -147,7 +147,11 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
           chatbot
         </p>
         <div className="flex items-center space-x-2">
-          <Link href={url} className="w-full cursor-pointer hover:opacity-50">
+          <Link
+            href={url}
+            target="_blank"
+            className="w-full cursor-pointer hover:opacity-50"
+          >
             <Input value={url} readOnly className="cursor-pointer" />
           </Link>
           <Button
