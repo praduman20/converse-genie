@@ -10,7 +10,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,17 +83,33 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
     if (data) {
       setMessages(data?.chat_sessions.messages);
     }
+    if (
+      window.sessionStorage.getItem("modalOpen") &&
+      window.sessionStorage.getItem("modalOpen") === "false"
+    ) {
+      setIsOpen(false);
+    }
+    const chatid = window.sessionStorage.getItem("Chatid");
+
+    if (chatid !== null) {
+      setChatId(parseInt(chatid));
+    }
   }, [data]);
 
   const handleInformationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    var chatId;
 
-    const chatId = await startNewChat(name, email, Number(id));
+    if (!window.sessionStorage.getItem("Chatid")) {
+      chatId = await startNewChat(name, email, Number(id));
+      window.sessionStorage.setItem("Chatid", chatId);
+    }
 
     setChatId(chatId);
     setLoading(false);
     setIsOpen(false);
+    window.sessionStorage.setItem("modalOpen", "false");
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -104,7 +119,7 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
     const message = formMessage;
     form.reset();
 
-    if (!name || !email) {
+    if (!window.sessionStorage.getItem("Chatid")) {
       setIsOpen(true);
       setLoading(false);
       return;
@@ -171,7 +186,7 @@ function ChatbotPage({ params: { id } }: { params: { id: string } }) {
         <DialogContent className="sm:max-w-[425px] flex-1">
           <form onSubmit={handleInformationSubmit}>
             <DialogHeader>
-              <DialogTitle>Let's help you out!</DialogTitle>
+              <DialogTitle>Let&apos;s help you out!</DialogTitle>
               <DialogDescription>
                 I just need a few details to get started
               </DialogDescription>

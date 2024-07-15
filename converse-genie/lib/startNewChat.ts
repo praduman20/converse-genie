@@ -26,7 +26,6 @@ async function startNewChat(
       mutation: INSERT_CHAT_SESSION,
       variables: { chatbot_id: chatbotId, guest_id: guestId, date: date },
     });
-    console.log(chatSessionResult.data);
     const chatSessionId = chatSessionResult.data.insertChat_sessions.id;
 
     // Insert initial message

@@ -193,7 +193,7 @@ function EditChatbot({ params: { id } }: { params: { id: string } }) {
         </div>
 
         <h2 className="text-xl font-bold mt-10">
-          Here's what your ConverseGenie AI knows...
+          Here&apos;s what your ConverseGenie AI knows...
         </h2>
         <p>
           Your chatbot is equipped with the following information to assist you
